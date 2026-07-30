@@ -12,3 +12,4 @@ db = client[DB_NAME]
 
 projectsCollection = db["projects"]
 detailsCollection = db["details"]
+enquireCollection = db["enquiries"]

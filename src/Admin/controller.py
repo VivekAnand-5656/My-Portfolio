@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
 
 from src.Config.db import projectsCollection, detailsCollection
-from src.Admin.schema import AddProjectSchema, AddDetailsSchema, Services, SocialLinks
+from src.Admin.schema import AddProjectSchema, AddDetailsSchema, Services, SocialLinks, AddEducation, Certification
 
 # ========== Add Projects ==========
 async def add_project(data:AddProjectSchema):
@@ -281,3 +281,123 @@ async def sociallinks_update(d_id:str, sociallinks:SocialLinks):
         )
     except Exception as e:
         raise HTTPException(500, detail=f"{e}")
+
+# ========= Update Education ==========
+async def education_update(d_id:str, data:AddEducation):
+    try:
+        detail = await detailsCollection.find_one({
+            "_id":ObjectId(d_id)
+        })
+
+        if not detail:
+            raise HTTPException(404, detail="Details not added")
+
+        await detailsCollection.update_one(
+            {"_id":detail["_id"]},
+            {
+                "$push":{
+                    "education":data.model_dump()
+                }
+            }
+        )
+
+        return jsonable_encoder(
+            {
+                "msg":"Education Updated"
+            },
+            custom_encoder={ObjectId:str}
+        )
+
+    except Exception as e:
+        raise HTTPException(500, detail=str(e))
+    
+# ========= Delete Education ==========
+async def education_delete(d_id:str, degree:str):
+    try:
+        detail = await detailsCollection.find_one({
+            "_id":ObjectId(d_id)
+        })
+
+        if not detail:
+            raise HTTPException(404, detail="Details not added")
+
+        await detailsCollection.update_one(
+            {"_id":detail["_id"]},
+            {
+                "$pull":{
+                    "education":{
+                        "degree": degree
+                    }
+                }
+            }
+        )
+
+        return jsonable_encoder(
+            {
+                "msg":"Education Deleted Successfully"
+            },
+            custom_encoder={ObjectId:str}
+        )
+
+    except Exception as e:
+        raise HTTPException(500, detail=str(e))
+
+# ========== Update Certification ========
+async def certification_update(d_id:str, data:Certification):
+    try:
+        detail = await detailsCollection.find_one({
+            "_id":ObjectId(d_id)
+        })
+
+        if not detail:
+            raise HTTPException(404, detail="Details not added")
+
+        await detailsCollection.update_one(
+            {"_id":detail["_id"]},
+            {
+                "$push":{
+                    "certification":data.model_dump()
+                }
+            }
+        )
+
+        return jsonable_encoder(
+            {
+                "msg":"Certification Updated"
+            },
+            custom_encoder={ObjectId:str}
+        )
+
+    except Exception as e:
+        raise HTTPException(500, detail=str(e))
+
+# ========== Delete Certification ========
+async def certification_delete(d_id:str, title:str):
+    try:
+        detail = await detailsCollection.find_one({
+            "_id":ObjectId(d_id)
+        })
+
+        if not detail:
+            raise HTTPException(404, detail="Details not added")
+
+        await detailsCollection.update_one(
+            {"_id":detail["_id"]},
+            {
+                "$pull":{
+                    "certification":{
+                        "title": title
+                    }
+                }
+            }
+        )
+
+        return jsonable_encoder(
+            {
+                "msg":"Certification Deleted Successfully"
+            },
+            custom_encoder={ObjectId:str}
+        )
+
+    except Exception as e:
+        raise HTTPException(500, detail=str(e))

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.Admin.schema import AddProjectSchema, AddDetailsSchema, Services, SocialLinks
+from src.Admin.schema import AddProjectSchema, AddDetailsSchema, Services, SocialLinks, AddEducation, Certification
 from src.Admin.controller import add_project, delete_project, get_projects
 from src.Admin import controller
 
@@ -64,3 +64,23 @@ async def delete_service(d_id:str, title:str):
 @admin_routes.put("/updatesociallink/{d_id}")
 async def update_service(d_id:str, sociallinks:SocialLinks):
     return await controller.sociallinks_update(d_id, sociallinks)
+
+# ==========> Update Education <===========
+@admin_routes.put("/updateeducation/{d_id}")
+async def update_education(d_id:str, data:AddEducation):
+    return await controller.education_update(d_id, data)
+
+# ==========> Delete Education <=========
+@admin_routes.delete("/deleteeducation/{d_id}")
+async def delete_education(d_id:str, degree:str):
+    return await controller.education_delete(d_id, degree)
+
+# ===========> Update Certification <=============
+@admin_routes.put("/updatecertification/{d_id}")
+async def update_certification(d_id:str, data:Certification):
+    return await controller.certification_update(d_id, data)
+
+# ===========> Delete Certification <===========
+@admin_routes.delete("/deletecertofocatopn/{d_id}")
+async def delete_certification(d_id:str, title:str):
+    return await controller.certification_delete(d_id, title)
