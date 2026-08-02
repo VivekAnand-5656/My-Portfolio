@@ -3,7 +3,7 @@ from src.Config.db import enquireCollection
 from src.Public.schema import InquirySchema
 from fastapi.encoders import jsonable_encoder
 from src.Public.email_service import send_email
-from datetime import date, timedelta
+from datetime import date
 from bson import ObjectId
 
 # ========== Send Enquiry =========
