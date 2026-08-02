@@ -1,79 +1,109 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
-from pydantic import EmailStr, BaseModel
 from typing import List
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
- 
+
 conf = ConnectionConfig(
-    MAIL_USERNAME = os.getenv("EMAIL"),
-    MAIL_PASSWORD = os.getenv("PASSWORD"),
-    MAIL_FROM = "va691187@gmail.com",
-    MAIL_PORT = 587,
-    MAIL_SERVER = "smtp.gmail.com",
+    MAIL_USERNAME=os.getenv("BREVO_USERNAME"),
+    MAIL_PASSWORD=os.getenv("BREVO_PASSWORD"),
+    MAIL_FROM=os.getenv("BREVO_SENDER"),
+
+    MAIL_SERVER="smtp-relay.brevo.com",
+    MAIL_PORT=587,
+
+    MAIL_STARTTLS=True,
+    MAIL_SSL_TLS=False,
+
     MAIL_FROM_NAME="Vivek Anand",
-    MAIL_STARTTLS = True,
-    MAIL_SSL_TLS = False,
-    USE_CREDENTIALS = True,
-    VALIDATE_CERTS = True
+
+    USE_CREDENTIALS=True,
+    VALIDATE_CERTS=True
 )
 
-# ======= Send to user ==========
-async def send_email(emails:List[str], user):
+
+# ===========================
+# Send Thank You Email to User
+# ===========================
+
+async def send_email(emails: List[str], user):
+
     html = f"""
-<h2>Thank You for Contacting Me!</h2>
+    <h2>Thank You for Contacting Me!</h2>
 
-<p>Hello, <strong>{user.name}</strong>, </p>
+    <p>Hello <strong>{user.name}</strong>,</p>
 
-<p>Thank you for reaching out. I have successfully received your inquiry.</p>
+    <p>
+    Thank you for reaching out. I have received your inquiry successfully.
+    </p>
 
-<p>I will review your message and get back to you within <strong>24 hours</strong>.</p>
+    <p>
+    I will review your message and get back to you within
+    <strong>24 hours</strong>.
+    </p>
 
-<p>I appreciate your interest and look forward to connecting with you.</p>
+    <br>
 
-<br>
+    <p>Best Regards,</p>
 
-<p>Best Regards,</p>
-<p><strong>Vivek Anand</strong><br>
-Full Stack Developer</p>
-"""
+    <strong>Vivek Anand</strong><br>
+    Full Stack Developer
+    """
 
     message = MessageSchema(
-        subject="Thank You for Your Inquiry - Vivek Anand",
+        subject="Thank You for Contacting Me",
         recipients=emails,
         body=html,
-        subtype=MessageType.html)
+        subtype=MessageType.html
+    )
 
     fm = FastMail(conf)
-    await fm.send_message(message)
-    return {"message": "Thanks For Enquiry, We will connect you soon."}
 
-# ======== Send Admin =======
+    await fm.send_message(message)
+
+    return {
+        "message": "Email Sent Successfully"
+    }
+
+
+# ===========================
+# Send Inquiry to Admin
+# ===========================
+
 async def send_admin_email(user):
+
     html = f"""
     <h2>📩 New Portfolio Inquiry</h2>
 
     <hr>
 
     <p><strong>Name:</strong> {user.name}</p>
+
     <p><strong>Email:</strong> {user.email}</p>
+
     <p><strong>Phone:</strong> {user.phone}</p>
 
     <p><strong>Message:</strong></p>
+
     <p>{user.msg}</p>
 
     <hr>
 
-    <p>This inquiry was submitted from your portfolio website.</p>
+    <p><strong>Date:</strong> {user.time}</p>
     """
 
     message = MessageSchema(
-        subject=f"📩 New Portfolio Inquiry from {user.name}",
-        recipients=["va691187@gmail.com"],
+        subject=f"New Portfolio Inquiry - {user.name}",
+        recipients=[os.getenv("BREVO_SENDER")],
         body=html,
         subtype=MessageType.html
     )
 
     fm = FastMail(conf)
+
     await fm.send_message(message)
+
+    return {
+        "message": "Admin Email Sent Successfully"
+    }
